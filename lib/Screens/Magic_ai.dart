@@ -14,14 +14,13 @@ class MagicAIPage extends StatefulWidget {
 class _MagicAIPageState extends State<MagicAIPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isAnalyzing = false;
-  List<Map<String, String>> _history = []; // Simple local history storage
+  final List<Map<String, String>> _history = [];
 
-  // 🔑 REPLACE WITH YOUR ACTUAL KEY
-  final String _apiKey = "AIzaSyCRYtmIhMKxKznaqVovqPOkr7OVpJXhnVA";
+  // 🔑 Gemini API Key
+  final String _apiKey = "AIzaSyBNfts3mjoeW0PU5MZjtpnPZpXaPRv0gV4";
 
   /// Core Logic: Communicates with Google Gemini
-  Future<void> _analyzeWithGemini(XFile? file, String userText) async {
-    // 1. Fixed the check so it doesn't block your real key
+  Future<void> _analyzeWithGemini(XFile? file, String userText, {int attempt = 0}) async {
     if (_apiKey.isEmpty || _apiKey == "PASTE_YOUR_KEY_HERE") {
       _showResult("Error: Please add a valid API Key! 🔑", isError: true);
       return;
@@ -30,8 +29,7 @@ class _MagicAIPageState extends State<MagicAIPage> {
     setState(() => _isAnalyzing = true);
 
     try {
-      // 2. Initialize the model
-      final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: _apiKey);
+      final model = GenerativeModel(model: 'gemini-2.0-flash-lite', apiKey: _apiKey);
 
       final List<Content> content = [];
       String systemPrompt = "Explain simply for a 7-year-old. Use emojis! 🌟";
@@ -51,12 +49,11 @@ class _MagicAIPageState extends State<MagicAIPage> {
         content.add(Content.text("$systemPrompt $promptText"));
       }
 
-      // 3. Request generation
       final response = await model.generateContent(content);
       final aiText = response.text;
 
       if (aiText == null) {
-        throw Exception("Gemini returned an empty response.");
+        throw Exception("Empty response");
       }
 
       setState(() {
@@ -68,14 +65,25 @@ class _MagicAIPageState extends State<MagicAIPage> {
       });
 
       _showResult(aiText);
+
     } catch (e) {
+      final errorStr = e.toString().toLowerCase();
+      print("DEBUG [attempt $attempt]: $e");
+
+      // Auto-retry on quota errors (1 retry after 60s)
+      if ((errorStr.contains('quota') || errorStr.contains('429') || errorStr.contains('resource'))
+          && attempt < 1) {
+        print("⏳ Quota hit, retrying in 60 seconds...");
+        await Future.delayed(const Duration(seconds: 60));
+        if (mounted) {
+          _analyzeWithGemini(file, userText, attempt: attempt + 1);
+        }
+        return;
+      }
+
       setState(() => _isAnalyzing = false);
-
-      // THIS WILL HELP YOU DEBUG:
-      print("DEBUG ERROR: $e");
-
       _showResult(
-        "Magic failed! Error: ${e.toString().split(':').last}", // Shows the actual error message
+        "Oops! 😅 AI is busy right now.\n\nPlease wait a minute and try again!",
         isError: true,
       );
     }
@@ -103,7 +111,7 @@ class _MagicAIPageState extends State<MagicAIPage> {
             borderRadius: BorderRadius.circular(30),
           ),
           title: Text(
-            isError ? "Oh No! 😮" : "Gemini Says: ✨",
+            isError ? "Oh No! 😮" : "AI Says: ✨",
             style: TextStyle(
               color: isError ? Colors.redAccent : Colors.cyanAccent,
             ),
@@ -136,7 +144,6 @@ class _MagicAIPageState extends State<MagicAIPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -173,7 +180,7 @@ class _MagicAIPageState extends State<MagicAIPage> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
         ),
         const Text(
-          "Magic AI Helper",
+          "Magic AI Helper ✨",
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
@@ -320,7 +327,7 @@ class _MagicAIPageState extends State<MagicAIPage> {
           CircularProgressIndicator(color: Colors.cyanAccent),
           SizedBox(height: 20),
           Text(
-            "Gemini is thinking... ✨",
+            "AI is thinking... ✨",
             style: TextStyle(color: Colors.white70, fontSize: 18),
           ),
         ],

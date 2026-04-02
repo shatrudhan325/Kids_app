@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:kids_app/Const/progress_service.dart';
 import 'package:kids_app/Screens/Deshboard.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ProgressService().init();
   runApp(const MyApp());
 }
 
