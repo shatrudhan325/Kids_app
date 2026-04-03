@@ -17,7 +17,7 @@ class _MagicAIPageState extends State<MagicAIPage> {
   final List<Map<String, String>> _history = [];
 
   // 🔑 Gemini API Key
-  final String _apiKey = "AIzaSyBNfts3mjoeW0PU5MZjtpnPZpXaPRv0gV4";
+  final String _apiKey = "[GCP_API_KEY]";
 
   /// Core Logic: Communicates with Google Gemini
   Future<void> _analyzeWithGemini(XFile? file, String userText, {int attempt = 0}) async {

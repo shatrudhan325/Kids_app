@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:kids_app/Const/progress_service.dart';
 import 'package:kids_app/Screens/Learn.dart';
 import 'package:kids_app/Screens/Quize.dart';
-import 'package:kids_app/Screens/Videos.dart';
+import 'package:kids_app/Screens/Drawing.dart';
 import 'package:kids_app/Screens/Games.dart';
 import 'package:kids_app/Screens/Magic_ai.dart';
 
@@ -56,12 +56,12 @@ class _AdvancedKidsDashboardState extends State<AdvancedKidsDashboard>
       'badge': 'HOT',
     },
     {
-      'title': 'Videos',
-      'icon': '📺',
+      'title': 'Drawing',
+      'icon': '🎨',
       'colors': [const Color(0xFFFA709A), const Color(0xFFFEE140)],
-      'subtitle': 'Watch & Sing',
-      'routeName': 'videos',
-      'badge': '',
+      'subtitle': 'Draw & Create',
+      'routeName': 'drawing',
+      'badge': 'NEW',
     },
     {
       'title': 'Quiz',
@@ -859,8 +859,8 @@ class _AdvancedKidsDashboardState extends State<AdvancedKidsDashboard>
       case 'games':
         nextScreen = const GamesScreen();
         break;
-      case 'videos':
-        nextScreen = const VideosScreen();
+      case 'drawing':
+        nextScreen = const DrawingScreen();
         break;
       case 'quiz':
         nextScreen = const QuizScreen();
@@ -926,7 +926,6 @@ class _AdvancedKidsDashboardState extends State<AdvancedKidsDashboard>
               children: [
                 _navItem(Icons.home_rounded, 0, 'Home'),
                 _navItem(Icons.auto_awesome_rounded, 1, 'Magic'),
-                _navItem(Icons.face_rounded, 2, 'Me'),
               ],
             ),
           ),
